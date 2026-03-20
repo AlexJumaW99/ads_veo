@@ -107,20 +107,19 @@ def generate_with_references(
     reference_image_paths: list[str | Path],
     output_path: str | Path,
     aspect_ratio: str = "16:9",
-    duration: int = 8,
     negative_prompt: str = "",
 ) -> tuple[Path, Any]:
     """
     Generate the FIRST clip using reference images for identity anchoring.
 
     This is used for shot 1 only. Subsequent shots use `extend_video`.
+    Veo 3.1 defaults to 8-second clips.
 
     Args:
         prompt: Full Veo 3.1 prompt.
         reference_image_paths: 1-3 product/brand reference images.
         output_path: Where to save the MP4.
         aspect_ratio: "16:9" or "9:16".
-        duration: Clip duration (4, 6, or 8 seconds).
         negative_prompt: Content to avoid.
 
     Returns:
@@ -135,7 +134,6 @@ def generate_with_references(
     config_kwargs: dict = {
         "reference_images": ref_images,
         "aspect_ratio": aspect_ratio,
-        "duration": duration,
         "person_generation": "allow_all",
     }
     if negative_prompt:
@@ -189,11 +187,11 @@ def generate_plain(
     prompt: str,
     output_path: str | Path,
     aspect_ratio: str = "16:9",
-    duration: int = 8,
     negative_prompt: str = "",
 ) -> tuple[Path, Any]:
     """
     Fallback: generate a clip from text only (no references, no extend).
+    Veo 3.1 defaults to 8-second clips.
 
     Used when reference images are unavailable or as a retry strategy.
     """
@@ -204,7 +202,6 @@ def generate_plain(
 
     config_kwargs: dict = {
         "aspect_ratio": aspect_ratio,
-        "duration": duration,
         "person_generation": "allow_all",
     }
     if negative_prompt:

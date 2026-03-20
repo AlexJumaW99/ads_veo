@@ -75,7 +75,6 @@ def editor_node(state: AdForgeState) -> dict:
                         reference_image_paths=ref_paths,
                         output_path=clip_path,
                         aspect_ratio=brief.aspect_ratio.value,
-                        duration=settings.pipeline.clip_duration,
                         negative_prompt=prompt.negative_prompt,
                     )
                 else:
@@ -84,7 +83,6 @@ def editor_node(state: AdForgeState) -> dict:
                         prompt=prompt.full_prompt,
                         output_path=clip_path,
                         aspect_ratio=brief.aspect_ratio.value,
-                        duration=settings.pipeline.clip_duration,
                         negative_prompt=prompt.negative_prompt,
                     )
 
@@ -128,7 +126,6 @@ def editor_node(state: AdForgeState) -> dict:
                         prompt=prompt.full_prompt,
                         output_path=clip_path,
                         aspect_ratio=brief.aspect_ratio.value,
-                        duration=settings.pipeline.clip_duration,
                         negative_prompt=prompt.negative_prompt,
                     )
                     clips.append(

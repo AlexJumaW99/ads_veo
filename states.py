@@ -233,8 +233,8 @@ class QualityReport(BaseModel):
     """
     overall_pass: bool = Field(description="True if the video meets the quality bar")
     overall_score: int = Field(
-        ge=1, le=10,
-        description="Aggregate quality score"
+        ge=0, le=10,
+        description="Aggregate quality score (0 = no video to review)"
     )
     criteria: list[QualityCriterion] = Field(
         description="Per-axis assessments"
