@@ -1,0 +1,17 @@
+{
+  "product_name": "Nike Air Max 90",
+  "product_description": "Iconic running shoe with visible Air cushioning, premium leather and mesh upper, and bold colour-blocked design. A streetwear staple since 1990.",
+  "target_audience": "Sneaker enthusiasts aged 18-35, fashion-conscious urban consumers who value heritage brands and street culture",
+  "brand": {
+    "tone": "Bold, energetic, aspirational, street-culture authentic",
+    "colors": ["#111111", "#FF0000", "#FFFFFF"],
+    "visual_style": "High-contrast, editorial, modern street photography aesthetic"
+  },
+  "key_message": "Air Max 90 — Iconic since day one.",
+  "cta_text": "Shop now at Nike.com",
+  "reference_image_paths": [],
+  "num_clips": 4,
+  "aspect_ratio": "16:9",
+  "resolution": "1080p",
+  "user_shot_list": null
+}

@@ -1,0 +1,21 @@
+{
+  "product_name": "Autonomous SmartDesk Pro",
+  "product_description": "Height-adjustable standing desk with programmable memory positions, built-in wireless charging pad, and integrated cable management. Premium bamboo top with powder-coated steel frame.",
+  "target_audience": "Remote workers and home-office professionals aged 25-45 who value productivity, ergonomics, and minimalist design",
+  "brand": {
+    "tone": "Calm, premium, quietly confident, productivity-focused",
+    "colors": ["#2C3E50", "#E8D5B7", "#FFFFFF"],
+    "visual_style": "Clean Scandinavian interiors, warm natural light, minimalist composition"
+  },
+  "key_message": "Rise to your best work.",
+  "cta_text": "Order yours at autonomous.ai",
+  "reference_image_paths": [],
+  "num_clips": 3,
+  "aspect_ratio": "16:9",
+  "resolution": "1080p",
+  "user_shot_list": [
+    "Open on the desk in a dark room, sunrise light slowly flooding in through floor-to-ceiling windows",
+    "The desk silently rises from sitting to standing height, camera tracks upward with it, revealing a curated workspace",
+    "Wide shot of a person working at the desk, city skyline visible through windows, golden hour light"
+  ]
+}

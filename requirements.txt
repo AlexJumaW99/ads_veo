@@ -1,0 +1,20 @@
+# AdForge – AI Video Ad Generation Pipeline
+# Core orchestration
+langgraph>=1.0.8
+langchain>=1.2.10
+langchain-google-genai>=4.2.1
+langchain-core>=0.3.0
+
+# Google GenAI SDK (unified SDK for Gemini API + Veo 3.1)
+google-genai>=1.14.0
+
+# Data models
+pydantic>=2.7.0
+
+# Image processing (frame extraction for quality checks)
+Pillow>=10.4.0
+opencv-python-headless>=4.10.0
+
+# Utilities
+python-dotenv>=1.0.1
+rich>=13.9.0
