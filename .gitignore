@@ -1,0 +1,10 @@
+__pycache__/
+*.py[cod] 
+.env
+youtube_token.json
+client_secret.json
+Graphs/
+*.mp4
+.DS_Store
+Logs/
+output/
