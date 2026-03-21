@@ -75,7 +75,6 @@ def editor_node(state: AdForgeState) -> dict:
                         reference_image_paths=ref_paths,
                         output_path=clip_path,
                         aspect_ratio=brief.aspect_ratio.value,
-                        negative_prompt=prompt.negative_prompt,
                     )
                 else:
                     logger.info("  Shot %d → generating (no references)", shot_num)

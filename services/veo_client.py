@@ -107,7 +107,6 @@ def generate_with_references(
     reference_image_paths: list[str | Path],
     output_path: str | Path,
     aspect_ratio: str = "16:9",
-    negative_prompt: str = "",
 ) -> tuple[Path, Any]:
     """
     Generate the FIRST clip using reference images for identity anchoring.
@@ -115,12 +114,15 @@ def generate_with_references(
     This is used for shot 1 only. Subsequent shots use `extend_video`.
     Veo 3.1 defaults to 8-second clips.
 
+    Note: negative_prompt is not supported by Veo 3.1 when reference
+    images are provided. Negative constraints should be folded into
+    the main prompt text instead.
+
     Args:
         prompt: Full Veo 3.1 prompt.
         reference_image_paths: 1-3 product/brand reference images.
         output_path: Where to save the MP4.
         aspect_ratio: "16:9" or "9:16".
-        negative_prompt: Content to avoid.
 
     Returns:
         (saved_path, video_object) for chaining into extend calls.
@@ -135,8 +137,6 @@ def generate_with_references(
         "reference_images": ref_images,
         "aspect_ratio": aspect_ratio,
     }
-    if negative_prompt:
-        config_kwargs["negative_prompt"] = negative_prompt
 
     operation = client.models.generate_videos(
         model=settings.models.video_gen,
