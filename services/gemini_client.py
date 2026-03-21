@@ -13,6 +13,7 @@ from pathlib import Path
 
 from google import genai
 from google.genai import types
+from PIL import Image
 
 from config import settings
 
@@ -53,6 +54,82 @@ def generate_reference_image(
     response = client.models.generate_content(
         model=settings.models.image_gen,
         contents=prompt,
+        config=types.GenerateContentConfig(
+            response_modalities=["IMAGE"],
+            image_config=types.ImageConfig(
+                aspect_ratio=aspect_ratio,
+            ),
+        ),
+    )
+
+    # Extract and save the image
+    for part in response.parts:
+        if part.inline_data:
+            image = part.as_image()
+            image.save(str(output_path))
+            logger.info("Reference image saved → %s", output_path)
+            return output_path
+
+    raise RuntimeError(f"No image returned for prompt: {prompt[:80]}…")
+
+
+def generate_reference_image_with_context(
+    prompt: str,
+    output_path: str | Path,
+    aspect_ratio: str = "16:9",
+    context_image_paths: list[str | Path] | None = None,
+) -> Path:
+    """
+    Generate a reference image with optional visual context from prior images.
+
+    When context images are provided, they are sent as inline images alongside
+    an explicit consistency instruction, forcing Gemini to match the product's
+    appearance (shape, proportions, colors, materials) across angles.
+
+    When no context images exist, behaves identically to generate_reference_image().
+
+    Args:
+        prompt: Descriptive prompt for the new image.
+        output_path: Where to save the PNG.
+        aspect_ratio: "16:9" or "9:16".
+        context_image_paths: Paths to previously generated reference images.
+
+    Returns:
+        Path to the saved image file.
+    """
+    # No context — fall back to the standard path
+    if not context_image_paths:
+        return generate_reference_image(prompt, output_path, aspect_ratio)
+
+    client = _get_client()
+    output_path = Path(output_path)
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+
+    logger.info(
+        "Generating reference image with %d context image(s) → %s",
+        len(context_image_paths),
+        output_path.name,
+    )
+
+    # Build multimodal contents: prior images + consistency instruction + prompt
+    contents: list = []
+
+    consistency_text = (
+        "Here are previously generated reference images of this exact product. "
+        "Your new image MUST depict the identical product — same shape, "
+        "proportions, colors, materials, and finish. Only the camera angle changes."
+    )
+    contents.append(consistency_text)
+
+    for img_path in context_image_paths:
+        img = Image.open(str(img_path))
+        contents.append(img)
+
+    contents.append(prompt)
+
+    response = client.models.generate_content(
+        model=settings.models.image_gen,
+        contents=contents,
         config=types.GenerateContentConfig(
             response_modalities=["IMAGE"],
             image_config=types.ImageConfig(

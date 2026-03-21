@@ -15,13 +15,21 @@ from pathlib import Path
 
 from config import settings
 from prompts import ART_DIRECTOR_IMAGE_PROMPT
-from services.gemini_client import generate_reference_image
+from services.gemini_client import generate_reference_image_with_context
 from states import AdBrief, AdForgeState, ReferenceImage, SceneBible
 
 logger = logging.getLogger(__name__)
 
 # Angles for generated reference images (if user doesn't provide any)
 _ANGLES = ["front-facing", "three-quarter angle", "side profile"]
+
+# Consistency mandate injected for the 2nd and 3rd reference images
+_CONSISTENCY_INSTRUCTION = (
+    "This image MUST depict the exact same product as the reference images "
+    "provided. Match all visual details precisely — same proportions, same "
+    "colors, same materials, same surface finish. Only the viewing angle "
+    "should differ.\n"
+)
 
 
 def art_director_node(state: AdForgeState) -> dict:
@@ -30,7 +38,8 @@ def art_director_node(state: AdForgeState) -> dict:
 
     Strategy:
       - If user provided images → validate and use them (up to 3).
-      - If not enough user images → generate additional ones with Gemini.
+      - If not enough user images → generate additional ones with Gemini,
+        passing previously generated images as visual context for consistency.
 
     Reads:  state["brief"], state["scene_bible"]
     Writes: state["reference_images"]
@@ -58,29 +67,38 @@ def art_director_node(state: AdForgeState) -> dict:
         else:
             logger.warning("⚠️  Reference image not found: %s", img_path)
 
-    # ── Step 2: Generate missing references ─────────────────────────────
+    # ── Step 2: Generate missing references sequentially ────────────────
     num_to_generate = max_refs - len(references)
 
     if num_to_generate > 0:
         logger.info(
             "🎨 Art Director generating %d reference image(s)", num_to_generate,
         )
+
+        generated_so_far: list[str] = []
+
         for i in range(num_to_generate):
             angle = _ANGLES[i % len(_ANGLES)]
+
+            # First image gets no consistency instruction; subsequent ones do
+            consistency_instruction = (
+                "" if not generated_so_far else _CONSISTENCY_INSTRUCTION
+            )
+
             prompt = ART_DIRECTOR_IMAGE_PROMPT.format(
                 product_name=brief.product_name,
                 product_description=brief.product_description,
                 angle=angle,
-                color_palette=scene_bible.color_palette,
-                lighting_setup=scene_bible.lighting_setup,
+                consistency_instruction=consistency_instruction,
             )
             out_path = output_dir / f"ref_{angle.replace(' ', '_')}_{i:02d}.png"
 
             try:
-                saved = generate_reference_image(
+                saved = generate_reference_image_with_context(
                     prompt=prompt,
                     output_path=out_path,
                     aspect_ratio=brief.aspect_ratio.value,
+                    context_image_paths=generated_so_far,
                 )
                 references.append(
                     ReferenceImage(
@@ -89,6 +107,7 @@ def art_director_node(state: AdForgeState) -> dict:
                         description=f"AI-generated {angle} reference",
                     ).model_dump()
                 )
+                generated_so_far.append(str(saved))
             except Exception as e:
                 logger.error("Failed to generate reference image: %s", e)
 

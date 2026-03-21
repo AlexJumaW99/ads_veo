@@ -134,7 +134,6 @@ def generate_with_references(
     config_kwargs: dict = {
         "reference_images": ref_images,
         "aspect_ratio": aspect_ratio,
-        "person_generation": "allow_adult",
     }
     if negative_prompt:
         config_kwargs["negative_prompt"] = negative_prompt
@@ -202,7 +201,6 @@ def generate_plain(
 
     config_kwargs: dict = {
         "aspect_ratio": aspect_ratio,
-        "person_generation": "allow_adult",
     }
     if negative_prompt:
         config_kwargs["negative_prompt"] = negative_prompt

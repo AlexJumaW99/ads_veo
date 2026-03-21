@@ -106,11 +106,15 @@ Produce your output as structured data.
 # ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 ART_DIRECTOR_IMAGE_PROMPT = """\
-Product photography reference image for AI video generation.
-{product_name}: {product_description}.
-Shot on white/neutral background, clean studio lighting, {angle} view.
-Style: {color_palette}, {lighting_setup}.
-High resolution, sharp focus, no text, no watermarks.
+{consistency_instruction}\
+Clean product reference photograph for AI video production.
+Product: {product_name} — {product_description}.
+Camera: {angle} view, product centered, entire product visible with breathing room.
+Background: Pure white seamless studio backdrop. No colors, no gradients, no environment, no reflections on the background, no visible studio equipment.
+Lighting: Soft, even, diffused studio lighting from above and slightly forward. No dramatic shadows, no rim lighting, no colored gels, no volumetric effects, no accent lights. The goal is accurate product representation, not artistic photography.
+Render every material, color region, and construction detail of the product faithfully and precisely.
+No text, no watermarks, no logos other than those on the product itself, no props, no people, no hands, no lifestyle context, no artistic atmosphere.
+Sharp focus on the entire product. High resolution. E-commerce catalog quality.\
 """
 
 
