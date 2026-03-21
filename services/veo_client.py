@@ -19,7 +19,6 @@ from typing import Any
 
 from google import genai
 from google.genai import types
-from PIL import Image
 
 from config import settings
 
@@ -85,16 +84,47 @@ def _save_video(
     return output_path, generated_video.video
 
 
+def _get_mime_type(path: Path) -> str:
+    """Infer MIME type from file extension."""
+    suffix = path.suffix.lower()
+    mime_map = {
+        ".png": "image/png",
+        ".jpg": "image/jpeg",
+        ".jpeg": "image/jpeg",
+        ".webp": "image/webp",
+        ".gif": "image/gif",
+    }
+    return mime_map.get(suffix, "image/png")
+
+
 def _load_reference_images(
     image_paths: list[str | Path],
     max_images: int = 3,
-) -> list[Image.Image]:
-    """Load reference images as PIL Images (Veo accepts up to 3)."""
+) -> list[types.VideoGenerationReferenceImage]:
+    """
+    Load reference images as VideoGenerationReferenceImage objects.
+
+    Veo 3.1 requires reference images to be wrapped in
+    types.VideoGenerationReferenceImage with reference_type="asset"
+    and the image data as a types.Image with raw bytes + MIME type.
+
+    See: https://ai.google.dev/gemini-api/docs/video#using-reference-images
+    """
     loaded = []
     for p in image_paths[:max_images]:
-        img = Image.open(str(p))
-        loaded.append(img)
-        logger.info("  📷 Loaded reference image: %s", Path(p).name)
+        p = Path(p)
+        image_bytes = p.read_bytes()
+        mime_type = _get_mime_type(p)
+
+        ref_image = types.VideoGenerationReferenceImage(
+            image=types.Image(
+                image_bytes=image_bytes,
+                mime_type=mime_type,
+            ),
+            reference_type="asset",
+        )
+        loaded.append(ref_image)
+        logger.info("  📷 Loaded reference image: %s", p.name)
     return loaded
 
 
@@ -113,6 +143,9 @@ def generate_with_references(
 
     This is used for shot 1 only. Subsequent shots use `extend_video`.
     Veo 3.1 defaults to 8-second clips.
+
+    Reference images are wrapped in types.VideoGenerationReferenceImage
+    with reference_type="asset", as required by the Veo 3.1 API.
 
     Note: negative_prompt is not supported by Veo 3.1 when reference
     images are provided. Negative constraints should be folded into
@@ -133,15 +166,13 @@ def generate_with_references(
 
     logger.info("🎬 Generating shot 1 with %d reference images", len(ref_images))
 
-    config_kwargs: dict = {
-        "reference_images": ref_images,
-        "aspect_ratio": aspect_ratio,
-    }
-
     operation = client.models.generate_videos(
         model=settings.models.video_gen,
         prompt=prompt,
-        config=types.GenerateVideosConfig(**config_kwargs),
+        config=types.GenerateVideosConfig(
+            reference_images=ref_images,
+            aspect_ratio=aspect_ratio,
+        ),
     )
 
     operation = _poll_operation(client, operation, label="shot-1")
